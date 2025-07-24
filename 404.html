@@ -1,18 +1,59 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Redirecting...</title>
-    <script>
-      // Full redirect to current path — preserves deep link
-      const path = window.location.pathname + window.location.search + window.location.hash;
-
-      // Redirect to same path on same domain
-      // This makes Android intent filters work
-      window.location.replace("https://tadjeddine-bnh.github.io" + path);
-    </script>
-  </head>
-  <body>
-    <p>Redirecting...</p>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting to App</title>
+  <meta name="apple-itunes-app" content="app-id=YOUR_APP_STORE_ID"> <!-- Replace this -->
+  <script>
+    const pathname = window.location.pathname;
+    const shouldRedirect = pathname.includes('/carelineDeepLinking/offer/');
+    
+    if (shouldRedirect) {
+      const segments = pathname.split('/');
+      const offerId = segments[segments.length - 1];
+      
+      const isAndroid = /Android/i.test(navigator.userAgent);
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      
+      if (isAndroid) {
+        window.location.href = `intent://carelineDeepLinking/offer/${offerId}#Intent;scheme=https;package=com.care.offers;end`;
+        setTimeout(() => {
+          window.location.href = "https://play.google.com/store/apps";
+        }, 2000);
+        
+      } else if (isIOS) {
+        let attempted = false;
+        const customSchemeUrl = `com.care.offers://carelineDeepLinking/offer/${offerId}`;
+        window.location.href = customSchemeUrl;
+        
+        setTimeout(() => {
+          if (!attempted) {
+            attempted = true;
+            window.location.href = `https://carelin.sa/offer/${offerId}`;
+          }
+        }, 500);
+        
+        setTimeout(() => {
+          if (!attempted) {
+            window.location.href = "https://apps.apple.com/sa"; // Replace with actual App Store URL
+          }
+        }, 3000);
+        
+      } else {
+        window.location.href = `https://carelin.sa`;
+      }
+      
+    } else {
+      // Not a deep link — optional fallback
+      console.log("404 not an offer link — staying here or redirecting");
+      // window.location.href = "https://carelin.sa";
+    }
+  </script>
+</head>
+<body>
+  <p>
+    Redirecting to app...<br>
+    <small>If the app doesn't open, <a href="https://carelin.sa">click here</a></small>
+  </p>
+</body>
 </html>
