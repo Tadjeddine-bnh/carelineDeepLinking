@@ -3,49 +3,66 @@
 <head>
   <meta charset="utf-8">
   <title>Redirecting to App</title>
-  <meta name="apple-itunes-app" content="app-id=YOUR_APP_STORE_ID"> <!-- Replace this -->
+  <meta name="apple-itunes-app" content="app-id=YOUR_APP_STORE_ID">
   <script>
-    const pathname = window.location.pathname;
-    const shouldRedirect = pathname.includes('/carelineDeepLinking/offer/');
-    
+    // Check if URL contains "/offer/"
+    const shouldRedirect = window.location.pathname.includes('/offer/');
+
     if (shouldRedirect) {
-      const segments = pathname.split('/');
-      const offerId = segments[segments.length - 1];
+      // Extract offer ID from URL
+      const pathSegments = window.location.pathname.split('/');
+      const offerId = pathSegments[pathSegments.length - 1];
       
+      // Check user agent
       const isAndroid = /Android/i.test(navigator.userAgent);
       const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
       
       if (isAndroid) {
-        window.location.href = `intent://carelineDeepLinking/offer/${offerId}#Intent;scheme=https;package=com.care.offers;end`;
-        setTimeout(() => {
-          window.location.href = "https://play.google.com/store/apps";
-        }, 2000);
+        // First try the universal link (this should work with App Links)
+        window.location.href = `https://tadjeddine-bnh.github.io/carelineDeepLinking/offer/${offerId}`;
+        
+        // Fallback: Try Android Intent after a delay
+        setTimeout(function() {
+          // Fixed intent URL format
+          window.location.href = `intent://tadjeddine-bnh.github.io/carelineDeepLinking/offer/${offerId}#Intent;scheme=https;package=com.care.offers;end`;
+        }, 1000);
+        
+        // Only redirect to Play Store if both methods fail
+        setTimeout(function() {
+          window.location.href = "https://play.google.com/store/apps/details?id=com.care.offers";
+        }, 3000);
         
       } else if (isIOS) {
+        // For iOS, try custom scheme first, then universal link
         let attempted = false;
-        const customSchemeUrl = `com.care.offers://carelineDeepLinking/offer/${offerId}`;
+        
+        // Try custom scheme
+        const customSchemeUrl = `com.care.offers://offer/${offerId}`;
         window.location.href = customSchemeUrl;
         
-        setTimeout(() => {
+        // If custom scheme fails, try universal link
+        setTimeout(function() {
           if (!attempted) {
             attempted = true;
-            window.location.href = `https://carelin.sa/offer/${offerId}`;
+            window.location.href = `https://tadjeddine-bnh.github.io/carelineDeepLinking/offer/${offerId}`;
           }
         }, 500);
         
-        setTimeout(() => {
+        // Fallback to App Store after longer delay
+        setTimeout(function() {
           if (!attempted) {
-            window.location.href = "https://apps.apple.com/sa"; // Replace with actual App Store URL
+            window.location.href = "https://apps.apple.com/sa"; // Replace with your actual App Store link
           }
         }, 3000);
         
       } else {
+        // Desktop fallback (if needed)
         window.location.href = `https://carelin.sa`;
       }
-      
     } else {
-      // Not a deep link — optional fallback
-      console.log("404 not an offer link — staying here or redirecting");
+      // If URL doesn't contain "/offer/", do nothing or redirect to a default page
+      console.log("Not a deep link - staying on page or redirecting to home");
+      // Optionally redirect to home:
       // window.location.href = "https://carelin.sa";
     }
   </script>
