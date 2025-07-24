@@ -1,7 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta http-equiv="refresh" content="0; url=/" />
+    <meta charset="utf-8" />
+    <title>Redirecting...</title>
+    <script>
+      // Full redirect to current path — preserves deep link
+      const path = window.location.pathname + window.location.search + window.location.hash;
+
+      // Redirect to same path on same domain
+      // This makes Android intent filters work
+      window.location.replace("https://tadjeddine-bnh.github.io" + path);
+    </script>
   </head>
   <body>
     <p>Redirecting...</p>
